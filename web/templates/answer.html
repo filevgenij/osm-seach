@@ -1,0 +1,73 @@
+{% extends "layout.html" %}
+{% block title %}- Results{% endblock %}
+{% block result %}
+<hr>
+<p><a href="{{url_home}}">Show map with autocomplete</a></p>
+{% if rc %}
+<p>Found <b>{{ result['totalResults'] }}</b> results for <i>{{query}}</i> in <i>{{index}}</i>:</p>
+<p>Used index {{debug_result['index_succeed']}} for query <i>{{debug_result['query_succeed']}}</i> with modify {{debug_result['modify']}}</p>
+{% if 'times' in debug_result %}
+<p>Times: prepare {{debug_result['times']['prepare']}}, total {{debug_result['times']['process']}}</p>
+<pre>{{debug_result['times'] | ppretty}}</pre>
+{% endif %}
+<p>Showing <b>{{ result['results'] | length }}</b> results</p>
+<table class="entries" width="100%" border="1" style="border-collapse: collapse;">
+  <tr>
+    <th rowspan="2"></th>
+    <th>id</th>
+    <th>name</th>
+    <th>class</th>
+    <th>type</th>
+    <th>bounding box<br>lon, lat</th>
+    <th>display_name</th>
+    <th>rank</th>
+    <th>importance</th>
+  </tr>
+  <tr>
+    <th colspan="6">alternative_names<br>wikipedia</th>
+    <th colspan="2">place_rank</th>
+  </tr>
+  {% for row in result['results'] %}
+  {% set class = "" %}
+  {% if (loop.index %2) == 0 %}
+  {% set classx = "even" %}
+  {% endif %}
+  <tr class="{{ class }}">
+    <td rowspan="2">{{ loop.index }}</td>
+    {% for col in ('id', 'name', 'class', 'type', 'boundingbox', 'display_name', 'rank', 'importance', 'alternative_names', 'wikipedia', 'place_rank') %}
+    {% if col == 'alternative_names' %}
+    </tr>
+    <tr class="{{ class }}">
+    {% endif %}
+    {% if col != 'wikipedia' %}
+    <td {% if col == 'alternative_names' %}colspan="6"{% elif col == 'place_rank' %}colspan="2"{% endif %}>
+    {% endif %}
+    {% if col in row %}
+      {% if col == 'display_name' and 'name_suffix' in row and row['name_suffix'] %}
+        {{row['name']}}, {{row['name_suffix']}}
+      {% else %}
+        {{ row[col] }}
+      {% endif %}
+      {% if col == 'boundingbox' %}
+      <br><i>{{ row['lon'] }}, {{ row['lat'] }}</i>
+      {% endif %}
+    {% endif %}
+    {% if col == 'alternative_names' %}
+      <br>
+    {% elif col =='wikipedia' and 'times' in debug_result %}
+      <br><span style="font-family: monospace;">{{row | ppretty}}</span>
+    {% else %}
+    </td>
+    {% endif %}
+    {% endfor %}
+  </tr>
+  {% endfor %}
+</table>
+{% else %}
+<p>Found 0 results for <i>{{query}}</i> in <i>{{index}}</i>:</p>
+<pre>
+  {{ result | nl2br | ppretty}}
+  {{debug_result['times'] | ppretty}}
+</pre>
+{% endif %}
+{% endblock %}

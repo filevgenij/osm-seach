@@ -1,0 +1,52 @@
+<html>
+<head>
+  {% block head %}
+  <meta charset="utf-8" />
+  <title>OSM Names Search {% block title %}- home{% endblock %}</title>
+  <meta name="author" content="Klokan Technologies GmbH" />
+  <meta name="description" content="Database of geographic place names from OpenStreetMap for full text search downloadable for free. Website: http://osmnames.org">
+  <link href="//klokantech.github.io/styles/base.css" rel="stylesheet" />
+  <script type="text/javascript" src="//klokantech.github.io/javascript/kt.js"></script>
+  {% endblock %}
+</head>
+<body onload="load();">
+<div class="container main">
+
+  <h1>OSM Names full text search</h1>
+{% block search_input %}
+<form name="display_name" action="{{ route }}" method="get">
+Search: <input autocomplete="off" id="autocomplete" type="text" name="q" value="{{query}}" class="autocomplete-nominatim" autofocus="autofocus" /><br/>
+<input type="hidden" name="format" value="html" />
+{% if debug %}
+<input type="hidden" name="debug" value="{{debug}}" />
+{% endif %}
+{% if autocomplete %}
+<input type="hidden" name="autocomplete" value="{{autocomplete}}" />
+{% endif %}
+<input class="btn" type="submit" value="Search" />
+</form>
+{% endblock %}
+
+<div id="result">
+    {% block result %}{% endblock %}
+</div><!-- #result -->
+
+</div><!-- .container.main -->
+
+<script>
+{% block script %}
+function load() {
+    var input = document.getElementById('autocomplete');
+    if (input.value.length > 0) {
+      if (typeof input.selectionStart == "number") {
+        input.selectionStart = input.selectionEnd = input.value.length;
+      } else {
+        input.focus();
+        input.setSelectionRange(input.value.length, input.value.length);
+      }
+    }
+}
+{% endblock %}
+</script>
+</body>
+</html>
